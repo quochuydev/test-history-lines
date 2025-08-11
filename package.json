@@ -2,7 +2,8 @@
   "name": "test-history-lines",
   "version": "1.0.0",
   "scripts": {
-    "dev": "tsx main.ts"
+    "dev": "tsx main.ts",
+    "fetch": "tsx fetch-data.ts"
   },
   "author": "",
   "license": "ISC",
