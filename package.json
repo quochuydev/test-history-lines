@@ -1,0 +1,13 @@
+{
+  "name": "test-history-lines",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "tsx main.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "tsx": "^4.20.3"
+  }
+}
