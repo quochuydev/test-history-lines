@@ -1,14 +1,14 @@
 Get data from https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=&limit=100
 
-Use `fetch`, write to history folder name template: <SYMBOL>-<interval>-<today>.json
+Use `fetch`, write to history folder name template: <SYMBOL>-<interval>-<limit>-<today>.json
 
 Examples:
 
-- BTCUSDT-1d-20250811.json
-- ETHUSDT-1d-20250811.json
-- SOLUSDT-1d-20250811.json
-- BTCUSDT-1h-20250811.json
-- SOLUSDT-15m-20250811.json
+- BTCUSDT-1d-365-20250811.json
+- ETHUSDT-1d-365-20250811.json
+- SOLUSDT-1d-365-20250811.json
+- BTCUSDT-1h-1000-20250811.json
+- SOLUSDT-15m-1000-20250811.json
 
 input:
 

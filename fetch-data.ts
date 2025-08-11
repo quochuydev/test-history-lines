@@ -43,9 +43,9 @@ function getTodayString(): string {
   return `${year}${month}${day}`;
 }
 
-function generateFileName(symbol: string, interval: string): string {
+function generateFileName(symbol: string, interval: string, limit: number): string {
   const todayString = getTodayString();
-  return `${symbol.toLowerCase()}-${interval}-${todayString}.json`;
+  return `${symbol.toLowerCase()}-${interval}-${limit}-${todayString}.json`;
 }
 
 async function fetchBinanceData(config: FetchConfig): Promise<any[]> {
@@ -98,7 +98,7 @@ async function fetchAllData(): Promise<void> {
   for (const config of data) {
     try {
       const klineData = await fetchBinanceData(config);
-      const fileName = generateFileName(config.symbol, config.interval);
+      const fileName = generateFileName(config.symbol, config.interval, config.limit);
       await saveDataToFile(klineData, fileName);
       successCount++;
 

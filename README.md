@@ -1,3 +1,5 @@
 ```
-npm run dev
+yarn fetch
+
+yarn dev
 ```
