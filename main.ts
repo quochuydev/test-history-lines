@@ -190,24 +190,24 @@ function generateMarkdownContent(
     for (const { file, result, records, dateRange } of results) {
       markdown += `| ${file} | ${dateRange} | ${
         result.buyDate
-      } $${result.buyPrice.toFixed(2)} | ${
+      } **$${result.buyPrice.toFixed(2)}** | ${
         result.sellDate
-      } $${result.sellPrice.toFixed(2)} | ${result.sharesCount.toFixed(
+      } **$${result.sellPrice.toFixed(2)}** | ${result.sharesCount.toFixed(
         8
-      )} | $${result.sellValue.toFixed(2)} | $${result.profit.toFixed(
+      )} | **$${result.sellValue.toFixed(2)}** | **$${result.profit.toFixed(
         2
-      )} | ${result.profitPercentage.toFixed(2)}% |\n`;
+      )}** | ${result.profitPercentage.toFixed(2)}% |\n`;
     }
 
     markdown += `\n## Summary\n`;
     markdown += `- **Best Profit:** ${
       results[0].file
-    } with $${results[0].result.profit.toFixed(
+    } with **$${results[0].result.profit.toFixed(
       2
-    )} (${results[0].result.profitPercentage.toFixed(2)}%)\n`;
-    markdown += `- **Average Profit:** $${(
+    )}** (${results[0].result.profitPercentage.toFixed(2)}%)\n`;
+    markdown += `- **Average Profit:** **$${(
       results.reduce((sum, r) => sum + r.result.profit, 0) / results.length
-    ).toFixed(2)}\n`;
+    ).toFixed(2)}**\n`;
     markdown += `- **Total Records Processed:** ${results
       .reduce((sum, r) => sum + r.records, 0)
       .toLocaleString()}\n`;
@@ -311,13 +311,13 @@ function main() {
         console.log(
           `| ${file} | ${dateRange} | ${
             result.buyDate
-          } $${result.buyPrice.toFixed(2)} | ${
+          } **$${result.buyPrice.toFixed(2)}** | ${
             result.sellDate
-          } $${result.sellPrice.toFixed(2)} | ${result.sharesCount.toFixed(
+          } **$${result.sellPrice.toFixed(2)}** | ${result.sharesCount.toFixed(
             8
-          )} | $${result.sellValue.toFixed(2)} | $${result.profit.toFixed(
+          )} | **$${result.sellValue.toFixed(2)}** | **$${result.profit.toFixed(
             2
-          )} | ${result.profitPercentage.toFixed(2)}% |`
+          )}** | ${result.profitPercentage.toFixed(2)}% |`
         );
       }
 
