@@ -1,6 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+const INVESTMENT_AMOUNT = 100; // Default investment amount in USD
+
 interface PriceData {
   timestamp: number;
   open: number;
@@ -15,6 +17,9 @@ interface TradeResult {
   sellDate: string;
   buyPrice: number;
   sellPrice: number;
+  investmentAmount: number;
+  sharesCount: number;
+  sellValue: number;
   profit: number;
   profitPercentage: number;
 }
@@ -41,8 +46,8 @@ function getHistoryFiles(historyDir: string): string[] {
   return fs.readdirSync(historyDir).filter(file => file.endsWith('.json'));
 }
 
-function findOptimalTrade(data: PriceData[]): TradeResult {
-  let maxProfit = 0;
+function findOptimalTrade(data: PriceData[], investmentAmount: number = INVESTMENT_AMOUNT): TradeResult {
+  let maxProfitPercentage = 0;
   let bestBuy = 0;
   let bestSell = 0;
   let minPrice = data[0].close;
@@ -54,9 +59,9 @@ function findOptimalTrade(data: PriceData[]): TradeResult {
       minIndex = i;
     }
 
-    const profit = data[i].close - minPrice;
-    if (profit > maxProfit) {
-      maxProfit = profit;
+    const profitPercentage = ((data[i].close - minPrice) / minPrice) * 100;
+    if (profitPercentage > maxProfitPercentage) {
+      maxProfitPercentage = profitPercentage;
       bestBuy = minIndex;
       bestSell = i;
     }
@@ -64,6 +69,9 @@ function findOptimalTrade(data: PriceData[]): TradeResult {
 
   const buyPrice = data[bestBuy].close;
   const sellPrice = data[bestSell].close;
+  const sharesCount = investmentAmount / buyPrice;
+  const sellValue = sharesCount * sellPrice;
+  const profit = sellValue - investmentAmount;
   const profitPercentage = ((sellPrice - buyPrice) / buyPrice) * 100;
 
   return {
@@ -71,14 +79,56 @@ function findOptimalTrade(data: PriceData[]): TradeResult {
     sellDate: new Date(data[bestSell].timestamp).toISOString().split('T')[0],
     buyPrice,
     sellPrice,
-    profit: maxProfit,
+    investmentAmount,
+    sharesCount,
+    sellValue,
+    profit,
     profitPercentage
   };
 }
 
+function generateMarkdownContent(results: Array<{file: string, result: TradeResult, records: number, dateRange: string}>): string {
+  let markdown = `# Crypto Price Analyzer - Finding Optimal Buy/Sell Dates\n`;
+  markdown += `**Investment Amount:** $${INVESTMENT_AMOUNT.toLocaleString('en-US')}\n`;
+  markdown += `**Analysis Date:** ${new Date().toISOString().split('T')[0]}\n`;
+  markdown += `**Total Files Analyzed:** ${results.length}\n\n`;
+
+  if (results.length > 0) {
+    markdown += `| File | Records | Date Range | Buy Date | Buy Price | Sell Date | Sell Price | Shares | Sell Value | Profit | Profit % |\n`;
+    markdown += `|------|---------|------------|----------|-----------|-----------|------------|--------|------------|--------|-----------|\n`;
+    
+    for (const {file, result, records, dateRange} of results) {
+      markdown += `| ${file} | ${records.toLocaleString()} | ${dateRange} | ${result.buyDate} | $${result.buyPrice.toFixed(2)} | ${result.sellDate} | $${result.sellPrice.toFixed(2)} | ${result.sharesCount.toFixed(8)} | $${result.sellValue.toFixed(2)} | $${result.profit.toFixed(2)} | ${result.profitPercentage.toFixed(2)}% |\n`;
+    }
+
+    markdown += `\n## Summary\n`;
+    markdown += `- **Best Profit:** ${results[0].file} with $${results[0].result.profit.toFixed(2)} (${results[0].result.profitPercentage.toFixed(2)}%)\n`;
+    markdown += `- **Average Profit:** $${(results.reduce((sum, r) => sum + r.result.profit, 0) / results.length).toFixed(2)}\n`;
+    markdown += `- **Total Records Processed:** ${results.reduce((sum, r) => sum + r.records, 0).toLocaleString()}\n`;
+  }
+
+  return markdown;
+}
+
+function saveResultsToFile(content: string): string {
+  const resultsDir = path.join(__dirname, 'results');
+  
+  // Create results directory if it doesn't exist
+  if (!fs.existsSync(resultsDir)) {
+    fs.mkdirSync(resultsDir, { recursive: true });
+  }
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0] + '_' + new Date().toISOString().replace(/[:.]/g, '-').split('T')[1].split('.')[0];
+  const fileName = `crypto-analysis-${timestamp}.md`;
+  const filePath = path.join(resultsDir, fileName);
+
+  fs.writeFileSync(filePath, content);
+  return fileName;
+}
+
 function main() {
-  console.log("Crypto Price Analyzer - Finding Optimal Buy/Sell Dates");
-  console.log("=" .repeat(60));
+  console.log("# Crypto Price Analyzer - Finding Optimal Buy/Sell Dates");
+  console.log(`**Investment Amount:** $${INVESTMENT_AMOUNT.toLocaleString('en-US')}\n`);
 
   try {
     const historyDir = path.join(__dirname, 'history');
@@ -89,61 +139,50 @@ function main() {
       return;
     }
 
-    console.log(`Found ${files.length} price history file(s)\n`);
-
-    let totalBestProfit = 0;
-    let totalBestFile = '';
-    let totalBestResult: TradeResult | null = null;
+    const results: Array<{file: string, result: TradeResult, records: number, dateRange: string}> = [];
 
     for (const file of files) {
       const filePath = path.join(historyDir, file);
-      console.log(`📁 Analyzing: ${file}`);
-      console.log("-" .repeat(40));
 
       try {
         const priceData = readSingleFile(filePath);
         
         if (priceData.length === 0) {
-          console.log("  ⚠️  No price data in this file\n");
+          console.log(`⚠️ No price data in ${file}`);
           continue;
         }
 
-        console.log(`  📊 Records: ${priceData.length}`);
-        console.log(`  📅 Date range: ${new Date(priceData[0].timestamp).toISOString().split('T')[0]} to ${new Date(priceData[priceData.length - 1].timestamp).toISOString().split('T')[0]}`);
-        
         const result = findOptimalTrade(priceData);
+        const dateRange = `${new Date(priceData[0].timestamp).toISOString().split('T')[0]} to ${new Date(priceData[priceData.length - 1].timestamp).toISOString().split('T')[0]}`;
         
-        console.log(`  💰 Optimal Strategy:`);
-        console.log(`     Buy Date: ${result.buyDate}`);
-        console.log(`     Buy Price: $${result.buyPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`);
-        console.log(`     Sell Date: ${result.sellDate}`);
-        console.log(`     Sell Price: $${result.sellPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`);
-        console.log(`     Profit: $${result.profit.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`);
-        console.log(`     Profit %: ${result.profitPercentage.toFixed(2)}%`);
-
-        if (result.profit > totalBestProfit) {
-          totalBestProfit = result.profit;
-          totalBestFile = file;
-          totalBestResult = result;
-        }
+        results.push({
+          file,
+          result,
+          records: priceData.length,
+          dateRange
+        });
 
       } catch (fileError) {
-        console.log(`  ❌ Error processing file: ${fileError}`);
+        console.log(`❌ Error processing ${file}: ${fileError}`);
       }
-
-      console.log("");
     }
 
-    if (totalBestResult && files.length > 1) {
-      console.log("🏆 BEST OVERALL OPPORTUNITY:");
-      console.log("=" .repeat(60));
-      console.log(`File: ${totalBestFile}`);
-      console.log(`Buy Date: ${totalBestResult.buyDate}`);
-      console.log(`Buy Price: $${totalBestResult.buyPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`);
-      console.log(`Sell Date: ${totalBestResult.sellDate}`);
-      console.log(`Sell Price: $${totalBestResult.sellPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`);
-      console.log(`Profit: $${totalBestResult.profit.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`);
-      console.log(`Profit Percentage: ${totalBestResult.profitPercentage.toFixed(2)}%`);
+    if (results.length > 0) {
+      // Sort by profit percentage descending
+      results.sort((a, b) => b.result.profitPercentage - a.result.profitPercentage);
+
+      console.log("| File | Records | Date Range | Buy Date | Buy Price | Sell Date | Sell Price | Shares | Sell Value | Profit | Profit % |");
+      console.log("|------|---------|------------|----------|-----------|-----------|------------|--------|------------|--------|----------|");
+      
+      for (const {file, result, records, dateRange} of results) {
+        console.log(`| ${file} | ${records.toLocaleString()} | ${dateRange} | ${result.buyDate} | $${result.buyPrice.toFixed(2)} | ${result.sellDate} | $${result.sellPrice.toFixed(2)} | ${result.sharesCount.toFixed(8)} | $${result.sellValue.toFixed(2)} | $${result.profit.toFixed(2)} | ${result.profitPercentage.toFixed(2)}% |`);
+      }
+
+      // Generate and save markdown file
+      const markdownContent = generateMarkdownContent(results);
+      const fileName = saveResultsToFile(markdownContent);
+      
+      console.log(`\n📄 Results saved to: ./results/${fileName}`);
     }
 
   } catch (error) {

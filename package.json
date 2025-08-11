@@ -10,5 +10,9 @@
   "description": "",
   "dependencies": {
     "tsx": "^4.20.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.1",
+    "typescript": "^5.9.2"
   }
 }
