@@ -8,30 +8,50 @@ interface FetchConfig {
 }
 
 const data: FetchConfig[] = [
+  // {
+  //   symbol: "BTCUSDT",
+  //   interval: "1d",
+  //   limit: 365, // 365 days
+  // },
+  // {
+  //   symbol: "BTCUSDT",
+  //   interval: "1h",
+  //   limit: 1 * 24 * 90, // 90 days
+  // },
+  // {
+  //   symbol: "ETHUSDT",
+  //   interval: "1d",
+  //   limit: 365, // 365 days
+  // },
+  // {
+  //   symbol: "ETHUSDT",
+  //   interval: "15m",
+  //   limit: 15 * 4 * 24 * 30, // 30 days
+  // },
   {
-    symbol: "BTCUSDT",
+    symbol: "SOLUSDT",
     interval: "1d",
-    limit: 365,
-  },
-  {
-    symbol: "ETHUSDT",
-    interval: "1d",
-    limit: 365,
+    limit: 365, // 365 days
   },
   {
     symbol: "SOLUSDT",
     interval: "1d",
-    limit: 365,
+    limit: 30, // 30 days
   },
   {
-    symbol: "BTCUSDT",
-    interval: "1h",
-    limit: 1 * 24 * 90, // 90 days
+    symbol: "SOLUSDT",
+    interval: "1d",
+    limit: 60, // 60 days
+  },
+  {
+    symbol: "SOLUSDT",
+    interval: "1d",
+    limit: 90, // 90 days
   },
   {
     symbol: "SOLUSDT",
     interval: "15m",
-    limit: Math.floor(60 * 0.4 * 24 * 90), // 90 days
+    limit: 15 * 4 * 24 * 30, // 30 days
   },
 ];
 
@@ -43,7 +63,11 @@ function getTodayString(): string {
   return `${year}${month}${day}`;
 }
 
-function generateFileName(symbol: string, interval: string, limit: number): string {
+function generateFileName(
+  symbol: string,
+  interval: string,
+  limit: number
+): string {
   const todayString = getTodayString();
   return `${symbol.toLowerCase()}-${interval}-${limit}-${todayString}.json`;
 }
@@ -98,7 +122,11 @@ async function fetchAllData(): Promise<void> {
   for (const config of data) {
     try {
       const klineData = await fetchBinanceData(config);
-      const fileName = generateFileName(config.symbol, config.interval, config.limit);
+      const fileName = generateFileName(
+        config.symbol,
+        config.interval,
+        config.limit
+      );
       await saveDataToFile(klineData, fileName);
       successCount++;
 
