@@ -1,33 +1,28 @@
 import * as fs from "fs";
 import * as path from "path";
-
-interface FetchConfig {
-  symbol: string;
-  interval: string;
-  limit: number;
-}
+import { FetchConfig, getTodayString, generateFileName } from "./utils";
 
 const data: FetchConfig[] = [
-  // {
-  //   symbol: "BTCUSDT",
-  //   interval: "1d",
-  //   limit: 365, // 365 days
-  // },
-  // {
-  //   symbol: "BTCUSDT",
-  //   interval: "1h",
-  //   limit: 1 * 24 * 90, // 90 days
-  // },
-  // {
-  //   symbol: "ETHUSDT",
-  //   interval: "1d",
-  //   limit: 365, // 365 days
-  // },
-  // {
-  //   symbol: "ETHUSDT",
-  //   interval: "15m",
-  //   limit: 15 * 4 * 24 * 30, // 30 days
-  // },
+  {
+    symbol: "BTCUSDT",
+    interval: "1d",
+    limit: 365, // 365 days
+  },
+  {
+    symbol: "BTCUSDT",
+    interval: "1h",
+    limit: 1 * 24 * 90, // 90 days
+  },
+  {
+    symbol: "ETHUSDT",
+    interval: "1d",
+    limit: 365, // 365 days
+  },
+  {
+    symbol: "ETHUSDT",
+    interval: "15m",
+    limit: 15 * 4 * 24 * 30, // 30 days
+  },
   {
     symbol: "SOLUSDT",
     interval: "1d",
@@ -54,23 +49,6 @@ const data: FetchConfig[] = [
     limit: 15 * 4 * 24 * 30, // 30 days
   },
 ];
-
-function getTodayString(): string {
-  const today = new Date();
-  const year = today.getFullYear().toString().slice(-2);
-  const month = (today.getMonth() + 1).toString().padStart(2, "0");
-  const day = today.getDate().toString().padStart(2, "0");
-  return `${year}${month}${day}`;
-}
-
-function generateFileName(
-  symbol: string,
-  interval: string,
-  limit: number
-): string {
-  const todayString = getTodayString();
-  return `${symbol.toLowerCase()}-${interval}-${limit}-${todayString}.json`;
-}
 
 async function fetchBinanceData(config: FetchConfig): Promise<any[]> {
   const url = `https://api.binance.com/api/v3/klines?symbol=${config.symbol}&interval=${config.interval}&limit=${config.limit}`;
@@ -157,4 +135,4 @@ if (require.main === module) {
   });
 }
 
-export { fetchAllData, FetchConfig };
+export { fetchAllData };

@@ -17,11 +17,16 @@ This is a cryptocurrency price analysis tool that processes historical candlesti
 ### Core Components
 
 - **main.ts** - Main application entry point containing:
+  - `data` array: Configuration array defining which crypto symbols, intervals, and limits to analyze
   - `PriceData` interface: Structured candlestick data (timestamp, OHLCV)
   - `TradeResult` interface: Optimal trade results with dates, prices, and profit metrics
   - `readSingleFile()`: Parses individual JSON files into PriceData arrays
   - `findOptimalTrade()`: Implements single-pass algorithm to find maximum profit opportunity
-  - `main()`: Orchestrates analysis of all files and displays results
+  - `main()`: Orchestrates analysis based on data array configurations and displays results
+- **fetch-data.ts** - Data fetching functionality for downloading fresh cryptocurrency data from Binance API
+- **utils.ts** - Shared utility functions containing:
+  - `FetchConfig` interface: Configuration structure for data fetching parameters
+  - `getTodayString()` & `generateFileName()`: Helper functions for file naming based on configurations
 
 ### Data Structure
 
