@@ -184,15 +184,15 @@ function generateMarkdownContent(
   markdown += `\n## Analysis Results\n\n`;
 
   if (results.length > 0) {
-    markdown += `| File | Date Range | Buy Date | Buy Price | Sell Date | Sell Price | Shares | Sell Value | Profit | Profit % |\n`;
-    markdown += `|------|------------|----------|-----------|-----------|------------|--------|------------|--------|-----------|\n`;
+    markdown += `| File | Date Range | Buy | Sell | Shares | Sell Value | Profit | Profit % |\n`;
+    markdown += `|------|------------|-----|------|--------|------------|--------|-----------|\n`;
 
     for (const { file, result, records, dateRange } of results) {
       markdown += `| ${file} | ${dateRange} | ${
         result.buyDate
-      } | $${result.buyPrice.toFixed(2)} | ${
+      } $${result.buyPrice.toFixed(2)} | ${
         result.sellDate
-      } | $${result.sellPrice.toFixed(2)} | ${result.sharesCount.toFixed(
+      } $${result.sellPrice.toFixed(2)} | ${result.sharesCount.toFixed(
         8
       )} | $${result.sellValue.toFixed(2)} | $${result.profit.toFixed(
         2
@@ -301,19 +301,19 @@ function main() {
       );
 
       console.log(
-        "| File | Date Range | Buy Date | Buy Price | Sell Date | Sell Price | Shares | Sell Value | Profit | Profit % |"
+        "| File | Date Range | Buy | Sell | Shares | Sell Value | Profit | Profit % |"
       );
       console.log(
-        "|------|------------|----------|-----------|-----------|------------|--------|------------|--------|----------|"
+        "|------|------------|-----|------|--------|------------|--------|----------|"
       );
 
       for (const { file, result, records, dateRange } of results) {
         console.log(
           `| ${file} | ${dateRange} | ${
             result.buyDate
-          } | $${result.buyPrice.toFixed(2)} | ${
+          } $${result.buyPrice.toFixed(2)} | ${
             result.sellDate
-          } | $${result.sellPrice.toFixed(2)} | ${result.sharesCount.toFixed(
+          } $${result.sellPrice.toFixed(2)} | ${result.sharesCount.toFixed(
             8
           )} | $${result.sellValue.toFixed(2)} | $${result.profit.toFixed(
             2
