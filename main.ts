@@ -294,10 +294,8 @@ function main() {
     }
 
     if (results.length > 0) {
-      // Sort by profit percentage descending
-      results.sort(
-        (a, b) => b.result.profitPercentage - a.result.profitPercentage
-      );
+      // Sort by file name alphabetically
+      results.sort((a, b) => a.file.localeCompare(b.file));
 
       console.log(
         "| File | Date Range | Buy | Sell | Shares | Sell Value | Profit | Profit % |"
