@@ -1,0 +1,18 @@
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Order {
+  id          Int      @id @default(autoincrement())
+  symbol      String
+  orderNumber Int
+  signal      String // "BUY" | "SELL" | "HOLD"
+  position    String? // "OPEN", "CLOSED", etc
+  timestamp   DateTime @default(now())
+}
