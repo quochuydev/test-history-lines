@@ -16,3 +16,21 @@ model Order {
   position    String? // "OPEN", "CLOSED", etc
   timestamp   DateTime @default(now())
 }
+
+model Candle {
+  id        Int      @id @default(autoincrement())
+  timestamp DateTime @unique
+  open      Float
+  high      Float
+  low       Float
+  close     Float
+  volume    Float
+}
+
+model Signal {
+  id         Int      @id @default(autoincrement())
+  timestamp  DateTime
+  signal     String
+  confidence Int
+  reason     String
+}
