@@ -4,6 +4,7 @@ import fs from "fs";
 import { Liquid } from "liquidjs";
 // import OpenAI from "openai";
 import { createOllamaService } from "./ollama";
+import { createGLMService } from "./glm";
 import {
   calculateEMA,
   calculateMACD,
@@ -13,6 +14,7 @@ import {
 
 // const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const ollama = createOllamaService("llama3.1:8b");
+const glm = createGLMService(process.env.GLM_API_KEY);
 
 const SYMBOL = "BTCUSDT";
 const INTERVAL = "5m";
@@ -87,7 +89,7 @@ Indicators: ${JSON.stringify(indicators)}
 
 Rules:
 1. Do not add any text outside the JSON.
-2. Always include all three fields: signal, confidence, reason.
+2. Always include all three fields: signal, confidence, TP, reason.
 3. Choose "HOLD" if there is no clear trade.
 4. Confidence must be a number between 0 and 100.
 5. Reason must explain the signal using the provided indicators and sentiment.
@@ -102,17 +104,10 @@ Rules:
   //   temperature: 0.3,
   // });
   // const content = response.choices[0].message.content
-  const content = await ollama.generateAnswer("", prompt);
+  const content = await glm.generateAnswer("", prompt);
   console.timeEnd("start");
   console.log(content);
-
-  try {
-    const json = JSON.parse(content || "");
-    return json;
-  } catch (e) {
-    console.error("Failed to parse AI response:", e);
-    return { signal: "HOLD", confidence: 0, reason: "Parsing error" };
-  }
+  return content;
 }
 
 async function run() {
@@ -128,7 +123,7 @@ async function run() {
 }
 
 run();
-setInterval(run, 1000 * 60 * 5);
+setInterval(run, 1000 * 60 * 3);
 
 const app = express();
 const PORT = 3333;
