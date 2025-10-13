@@ -2,7 +2,7 @@ import "dotenv/config";
 import express from "express";
 import fs from "fs";
 import { Liquid } from "liquidjs";
-import OpenAI from "openai";
+// import OpenAI from "openai";
 import { createOllamaService } from "./ollama";
 import {
   calculateEMA,
@@ -47,7 +47,6 @@ async function computeIndicators(
   };
 }
 
-// 3. Get AI signal from OpenAI
 async function getSignal(params: {
   prices: Array<{
     timestamp: number;
@@ -76,7 +75,8 @@ Return **ONLY** JSON in the exact format:
 
 {
   "signal": "HOLD" | "OPEN_BUY" | "CLOSE_BUY" | "OPEN_SELL" | "CLOSE_SELL"
-  "confidence": 0-100,       // integer representing confidence percentage
+  "confidence": 0-100,       // Integer representing confidence percentage
+  "TP": number,              // Take profit
   "reason": "Explanation of the signal using indicators and sentiment"
 }
 
