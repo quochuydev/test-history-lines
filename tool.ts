@@ -1,6 +1,6 @@
 export async function fetchBinanceData(
   symbol: "BTCUSDT",
-  interval: "1m",
+  interval: string,
   limit: number
 ): Promise<
   {

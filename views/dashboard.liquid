@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ title }}</title>
+</head>
+<body>
+  <h1>{{ title }}</h1>
+  <p id="status">Waiting for alerts...</p>
+
+  <script>
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+
+    const status = document.getElementById("status");
+    const evtSource = new EventSource("/alerts");
+
+    evtSource.onmessage = function(event) {
+      try {
+        const signal = JSON.parse(event.data);
+        status.textContent = `Latest Signal: ${signal.signal} | Confidence: ${signal.confidence}`;
+
+        if (Notification.permission === "granted") {
+          new Notification(``, {
+            body: `Signal: ${signal.signal}\nConfidence: ${signal.confidence}`
+          });
+        }
+      } catch (e) {
+        console.error("Failed to parse signal:", e);
+      }
+    };
+
+    evtSource.onerror = function(err) {
+      console.error("SSE error:", err);
+      status.textContent = "Connection error, retrying...";
+    };
+  </script>
+</body>
+</html>
