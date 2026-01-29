@@ -1,0 +1,12 @@
+title: Crypto Price Analyzer
+description: Historical cryptocurrency price analysis finding optimal buy/sell opportunities
+theme: jekyll-theme-cayman
+baseurl: /test-history-lines
+
+include:
+  - _results
+
+collections:
+  results:
+    output: true
+    permalink: /results/:name
